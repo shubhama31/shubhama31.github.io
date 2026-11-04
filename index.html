@@ -63,7 +63,7 @@ input,textarea,select.f{width:100%;padding:11px;border:1px solid var(--line);bor
 .tabs .on{background:var(--card);box-shadow:0 1px 4px rgba(0,0,0,.15)}
 .err{color:#e5334f;font-size:14px;min-height:20px;margin-top:8px}
 .note{font-size:12px;color:var(--muted);margin-top:8px}
-#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#0d1b3e;color:#fff;padding:12px 20px;border-radius:24px;opacity:0;pointer-events:none;transition:opacity .25s;z-index:99}
+#toast{position:fixed;left:50%;bottom:92px;transform:translateX(-50%);background:#0d1b3e;color:#fff;padding:12px 20px;border-radius:24px;opacity:0;pointer-events:none;transition:opacity .25s;z-index:99}
 #toast.show{opacity:1}
 footer{text-align:center;color:var(--muted);font-size:14px;padding:24px 16px 40px}
 :focus-visible{outline:3px solid var(--sun);outline-offset:2px}
@@ -77,6 +77,39 @@ footer{text-align:center;color:var(--muted);font-size:14px;padding:24px 16px 40p
 .roles input{width:auto}
 .thumbs{display:flex;gap:8px;margin:6px 0 12px;flex-wrap:wrap}
 .th{display:block;width:58px;height:58px;border-radius:8px;border:2px solid var(--line);background-size:cover;background-position:center;padding:0}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:8px;margin:10px 0}
+.stats div{background:var(--bg);border-radius:10px;padding:10px;text-align:center;font-size:13px;color:var(--muted)}
+.stats b{display:block;font-size:26px;color:var(--ink)}
+.arow{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line);font-size:14px}
+.arow small{color:var(--muted);display:block}
+.arow button{border:1px solid #e5334f;color:#e5334f;background:transparent;border-radius:8px;padding:6px 10px}
+.arow button.alt{border-color:var(--blue);color:var(--blue)}
+#app{padding-bottom:80px}
+#tabs{position:fixed;left:50%;bottom:10px;transform:translateX(-50%);width:min(520px,calc(100% - 20px));background:var(--card);border:1px solid var(--line);border-radius:30px;display:flex;padding:6px;box-shadow:0 6px 24px rgba(0,0,0,.25);z-index:20}
+#tabs button{flex:1;border:0;background:transparent;color:var(--muted);padding:6px 4px;border-radius:24px;font-size:13px;font-weight:600;display:flex;flex-direction:column;align-items:center}
+#tabs i{font-style:normal;font-size:20px;line-height:1.2}
+#tabs button.on{background:#e6e9ff;color:#2a3bd6}
+@media (prefers-color-scheme:dark){#tabs button.on{background:#25305c;color:#cdd4ff}}
+.wrap{max-width:640px;margin:auto;padding:18px 16px}
+.ah h1{font-size:30px;margin:0;letter-spacing:-.5px}
+#vcard{margin:16px 0;padding:16px;border-radius:14px;background:linear-gradient(135deg,#e8ebff,#f3f0ff);color:#0d1b3e}
+#vcard[data-s="Verified"]{background:linear-gradient(135deg,#d3f5e1,#e8fbf0)}
+#vcard b{display:block;font-size:17px}
+#vcard small{display:block;color:#445}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.big{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:14px;padding:16px;font-weight:700;font-size:16px}
+.acct-h{margin:26px 0 8px;font-size:20px}
+.menu{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.mi{display:flex;gap:12px;align-items:center;width:100%;text-align:left;border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--ink);padding:14px;font-size:22px}
+.mi:last-child{border-bottom:0}
+.mi span{flex:1;font-size:16px;min-width:0}
+.mi b{display:block}
+.mi small{display:block;color:var(--muted);font-weight:400;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mi em{font-style:normal;color:var(--muted)}
+.badge{font-size:12px;font-weight:700;padding:3px 9px;border-radius:12px;background:#fff0b8;color:#6b5200}
+.badge.ok{background:#d3f5e1;color:#0b6b36}
+.logout{width:100%;margin-top:22px;padding:13px;border-radius:12px;border:1px solid #e5334f;background:transparent;color:#e5334f;font-weight:700}
+h3.ph{margin:20px 0 4px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
@@ -84,10 +117,11 @@ footer{text-align:center;color:var(--muted);font-size:14px;padding:24px 16px 40p
 <div id="app" hidden>
 <header><div class="bar">
  <div class="logo">Sell<b>karo</b></div>
- <span id="user"></span>
+ <button class="ghost" id="adminBtn" hidden>Admin</button><span id="user"></span>
  <button class="sell" id="sellBtn">+ Sell</button>
 </div></header>
 
+<div id="home">
 <section class="hero"><div>
  <h1>Sell what you don’t need. Find what you do.</h1>
  <p>Free ads. Chat with sellers directly on WhatsApp.</p>
@@ -106,8 +140,36 @@ footer{text-align:center;color:var(--muted);font-size:14px;padding:24px 16px 40p
   <div><b>🤝 Meet safely</b><span>Meet in public places. Pay after you check the item.</span></div>
  </div>
 </main>
-<footer>© Sellkaro. Never pay in advance to someone you haven’t met.</footer>
+<footer>© Sellkaro. Never pay in advance to someone you haven’t met.</footer></div>
+<section id="acct" hidden><div class="wrap">
+ <div class="ah"><h1 id="hey">Hey</h1></div>
+ <div id="vcard"></div>
+ <div class="two"><button class="big" id="goMine" type="button">📦 My ads</button><button class="big" id="goFav" type="button">♥ Saved</button></div>
+ <h2 class="acct-h">Account settings</h2>
+ <div class="menu" id="menu">
+  <button class="mi" data-p="profile" type="button">👤<span><b>Profile and contact</b><small id="sp"></small></span><em>›</em></button>
+  <button class="mi" data-p="docs" type="button">🪪<span><b>Documents and verification</b><small id="sd"></small></span><em>›</em></button>
+  <button class="mi" data-p="addr" type="button">📍<span><b>Saved addresses</b><small id="sa"></small></span><em>›</em></button>
+  <button class="mi" data-p="pay" type="button">💳<span><b>Payment methods</b><small id="spay"></small></span><em>›</em></button>
+ </div>
+ <button class="logout" id="acLogout" type="button">Logout</button>
+</div></section>
+<nav id="tabs" aria-label="Main">
+ <button data-t="home" class="on" type="button"><i>🏠</i>Home</button>
+ <button data-t="saved" type="button"><i>♥</i>Saved</button>
+ <button data-t="sell" type="button"><i>➕</i>Sell</button>
+ <button data-t="acct" type="button"><i>👤</i>Account</button>
+</nav>
 </div>
+<dialog id="pane"><div class="in" id="pbody"></div></dialog>
+
+<dialog id="admin" style="width:min(720px,96vw)"><div class="in">
+ <button class="x" onclick="admin.close()" aria-label="Close">×</button>
+ <h2>Admin panel</h2>
+ <div class="stats" id="stats"></div>
+ <div class="tabs"><button id="atu" class="on" type="button">Users</button><button id="ata" type="button">Ads</button></div>
+ <div id="alist"></div>
+</div></dialog>
 
 <dialog id="view"><div class="in" id="vbody"></div></dialog>
 
@@ -150,6 +212,8 @@ footer{text-align:center;color:var(--muted);font-size:14px;padding:24px 16px 40p
 /* ===== SETUP: paste your Firebase config here to turn on real logins and shared ads =====
    Leave apiKey empty to run in demo mode (accounts and ads stay on each visitor's own phone). */
 const FIREBASE_CONFIG={apiKey:"",authDomain:"",projectId:"",appId:""};
+/* The account with this email sees the Admin panel. Change it to your own email. */
+const ADMIN_EMAIL="admin@sellkaro.com";
 
 const CATS=[["All","🛍️","#6b7bff"],["Mobiles","📱","#2fb6ff"],["Vehicles","🏍️","#ff7a45"],["Electronics","💻","#8a5cff"],["Furniture","🛋️","#e0a030"],["Fashion","👕","#ee4d8f"],["Books","📚","#28b87a"]];
 const SEED=[
@@ -187,6 +251,22 @@ function artUrl(a){const x=artOf(a);if(!x)return"";const s='<svg xmlns="http://w
 function hasPic(a){return !!(a.img||(a.imgs&&a.imgs[0])||artOf(a))}
 function pic(a){const u=(a.imgs&&a.imgs[0])||a.img;if(u)return `style="background-image:url(${u})"`;const r=artUrl(a);return r?`style="background-image:${r}"`:`style="background:linear-gradient(135deg,${ci(a.c)[2]}33,${ci(a.c)[2]}88)"`}
 function swap(i,j){$("mp").style.backgroundImage=`url(${list[i].imgs[j]})`}
+let atab="users",adminAds=[];
+$("adminBtn").onclick=async()=>{$("admin").showModal();await drawAdmin()};
+$("atu").onclick=()=>{atab="users";drawAdmin()};$("ata").onclick=()=>{atab="ads";drawAdmin()};
+async function drawAdmin(){
+ if(!me||me.email!==ADMIN_EMAIL)return;
+ let users=[];adminAds=remote.concat(mine);
+ try{
+  if(LIVE){const s=await fb.db.collection("users").get();users=s.docs.map(d=>Object.assign({id:d.id},d.data()))}
+  else{const u=jget("sk_users",{});users=Object.keys(u).map(e=>Object.assign({email:e},u[e]))}
+ }catch(e){$("alist").innerHTML='<p class="empty">Could not load users: '+esc(e.message)+'</p>';return}
+ const sellers=users.filter(u=>u.role==="seller").length;
+ $("stats").innerHTML=`<div><b>${users.length}</b>Users</div><div><b>${sellers}</b>Sellers</div><div><b>${users.length-sellers}</b>Buyers</div><div><b>${adminAds.length}</b>Ads</div>`;
+ $("atu").classList.toggle("on",atab==="users");$("ata").classList.toggle("on",atab==="ads");
+ $("alist").innerHTML=atab==="users"?(users.map(u=>`<div class="arow"><div><b>${esc(u.name||"")}</b> · ${u.role==="seller"?"Seller":"Buyer"}<small>${esc(u.email||"")}${u.phone?" · +"+esc(u.phone):""}${u.city?" · "+esc(u.city):""}</small></div></div>`).join("")||'<p class="empty">No users yet.</p>'):(adminAds.map((a,i)=>`<div class="arow"><div><b>${esc(a.t)}</b> · ${inr(a.p)}<small>${esc(a.by||"")} · ${esc(a.l)} · ${esc(a.c)}</small></div><button onclick="adminDel(${i})">Delete</button></div>`).join("")||'<p class="empty">No ads posted yet.</p>');
+}
+async function adminDel(i){const a=adminAds[i];if(!confirm("Delete this ad?"))return;try{if(LIVE&&a.id)await fb.db.collection("ads").doc(a.id).delete();else{mine=mine.filter(x=>x!==a);jset("sk_ads",mine)}remote=remote.filter(x=>x!==a)}catch(e){toast("Could not delete");return}draw();await drawAdmin();toast("Ad deleted")}
 $("pi").onchange=()=>{const fs=[...$("pi").files].slice(0,4);$("prev").innerHTML=fs.map(f=>`<span class="th" style="background-image:url(${URL.createObjectURL(f)})"></span>`).join("")};
 
 function drawCats(){
@@ -224,9 +304,9 @@ function drawUser(){
  if(!me){setMode(mode);return}
  $("user").innerHTML=`<span style="font-size:14px;margin-right:6px">Hi, ${esc(me.name)}${me.role==="seller"?" · Seller":""}</span><button class="ghost" id="lo">Logout</button>`;
  $("lo").onclick=logout;
- $("sellBtn").hidden=me.role!=="seller";
+ $("sellBtn").hidden=me.role!=="seller";$("adminBtn").hidden=me.email!==ADMIN_EMAIL;
  [...$("sort").options].forEach(o=>{if(o.value==="mine")o.hidden=me.role!=="seller"});
- draw();scrollTo(0,0);
+ go(curTab);draw();
 }
 function syncRole(){const sel=document.querySelector("input[name=role]:checked").value==="seller",s=mode==="signup";$("sellerWrap").hidden=!(s&&sel);["as","aw","ac"].forEach(i=>$(i).required=s&&sel)}
 document.querySelectorAll("input[name=role]").forEach(r=>r.onchange=syncRole);
@@ -242,7 +322,7 @@ function setMode(m){
 }
 $("tl").onclick=()=>setMode("login");$("ts").onclick=()=>setMode("signup");
 $("sellBtn").onclick=()=>{$("pw").value=me.phone||"";$("pl").value=me.city||"";$("post").showModal()};
-function logout(){if(LIVE)fb.auth.signOut();else{me=null;jset("sk_me",null);drawUser()}toast("Logged out")}
+function logout(){curTab="home";if(LIVE)fb.auth.signOut();else{me=null;jset("sk_me",null);drawUser()}toast("Logged out")}
 $("af").onsubmit=async e=>{
  e.preventDefault();$("aerr").textContent="";
  const em=$("ae").value.trim().toLowerCase(),pw=$("ap").value,nm=$("an").value.trim();
@@ -250,7 +330,7 @@ $("af").onsubmit=async e=>{
   const role=document.querySelector("input[name=role]:checked").value,sl=role==="seller";
   const prof={role,name:sl?($("as").value.trim()||nm):nm,phone:sl?$("aw").value.replace(/\D/g,""):"",city:sl?$("ac").value.trim():""};
   if(LIVE){
-   if(mode==="signup"){fb.signing=true;try{const r=await fb.auth.createUserWithEmailAndPassword(em,pw);prof.name=prof.name||em.split("@")[0];await r.user.updateProfile({displayName:prof.name});await fb.db.collection("users").doc(r.user.uid).set(prof);me=Object.assign({email:em,uid:r.user.uid},prof)}finally{fb.signing=false}drawUser()}
+   if(mode==="signup"){fb.signing=true;try{const r=await fb.auth.createUserWithEmailAndPassword(em,pw);prof.name=prof.name||em.split("@")[0];await r.user.updateProfile({displayName:prof.name});await fb.db.collection("users").doc(r.user.uid).set(Object.assign({email:em},prof));me=Object.assign({email:em,uid:r.user.uid},prof)}finally{fb.signing=false}drawUser()}
    else await fb.auth.signInWithEmailAndPassword(em,pw);
   }else{
    const users=jget("sk_users",{});
@@ -263,10 +343,10 @@ $("af").onsubmit=async e=>{
 };
 
 /* ---------- posting ---------- */
-function shrink(file){return new Promise(res=>{
+function shrink(file,mx){mx=mx||640;return new Promise(res=>{
  if(!file)return res("");
  const r=new FileReader();
- r.onload=()=>{const im=new Image();im.onload=()=>{const k=Math.min(1,640/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=im.width*k;c.height=im.height*k;c.getContext("2d").drawImage(im,0,0,c.width,c.height);res(c.toDataURL("image/jpeg",.7))};im.onerror=()=>res("");im.src=r.result};
+ r.onload=()=>{const im=new Image();im.onload=()=>{const k=Math.min(1,mx/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=im.width*k;c.height=im.height*k;c.getContext("2d").drawImage(im,0,0,c.width,c.height);res(c.toDataURL("image/jpeg",.7))};im.onerror=()=>res("");im.src=r.result};
  r.onerror=()=>res("");r.readAsDataURL(file);
 })}
 $("pf").onsubmit=async e=>{
@@ -281,6 +361,72 @@ $("pf").onsubmit=async e=>{
 };
 
 /* ---------- start ---------- */
+/* ---------- account page ---------- */
+let curTab="home",curPane="";
+function go(t){
+ curTab=t;$("home").hidden=t==="acct";$("acct").hidden=t!=="acct";
+ document.querySelectorAll("#tabs button").forEach(b=>b.classList.toggle("on",b.dataset.t===t));
+ if(t==="acct")drawAcct();
+ else{if(t==="saved")$("sort").value="fav";else if(["fav","mine"].includes($("sort").value))$("sort").value="new";draw()}
+}
+$("tabs").onclick=e=>{const b=e.target.closest("button");if(!b)return;const t=b.dataset.t;
+ if(t==="sell"){if(me.role==="seller")$("sellBtn").click();else toast("Register as a seller to post ads");return}
+ go(t);scrollTo(0,0)};
+$("goFav").onclick=()=>{go("saved");scrollTo(0,0)};
+$("goMine").onclick=()=>{if(me.role!=="seller"){toast("Only sellers have ads. Register as a seller to sell.");return}go("home");$("sort").value="mine";draw();scrollTo(0,0)};
+$("acLogout").onclick=logout;
+$("menu").onclick=e=>{const b=e.target.closest("button");if(b)openPane(b.dataset.p)};
+function save(patch){
+ Object.assign(me,patch);
+ try{
+  if(LIVE)fb.db.collection("users").doc(me.uid).set(patch,{merge:true}).catch(()=>toast("Could not save online"));
+  else{const u=jget("sk_users",{});u[me.email]=Object.assign(u[me.email]||{},patch);jset("sk_users",u);jset("sk_me",me)}
+ }catch(e){toast("Could not save")}
+}
+const vstat=()=>{const d=me.docs||[];return d.some(x=>x.s==="Verified")?"Verified":d.length?"Under review":"Not verified"};
+function drawAcct(){
+ const v=vstat();
+ $("hey").textContent="Hey, "+(me.name||"there");
+ $("vcard").dataset.s=v;
+ $("vcard").innerHTML=`<b>${v==="Verified"?"✅ Verified account":v==="Under review"?"⏳ Documents under review":"🪪 Not verified yet"}</b><small>${v==="Verified"?"Your documents are verified.":v==="Under review"?"We will review your documents soon.":"Add an ID document to get verified."}</small>`;
+ $("sp").textContent=(me.email||"")+(me.phone?" · +"+me.phone:"");
+ $("sd").textContent=v;
+ $("sa").textContent=(me.addrs||[]).length+" saved";
+ $("spay").textContent=(me.pays||[]).length+" saved";
+}
+function openPane(p){curPane=p;renderPane();if(!$("pane").open)$("pane").showModal()}
+function renderPane(){
+ const X='<button class="x" onclick="pane.close()" aria-label="Close">×</button>',B=$("pbody"),emp=t=>`<p class="empty" style="padding:16px">${t}</p>`;
+ if(curPane==="profile"){
+  B.innerHTML=X+`<h2>Profile</h2><form id="f1"><label for="n1">Name</label><input id="n1" required value="${esc(me.name||"")}"><label for="m1">Mobile number (with country code)</label><input id="m1" inputmode="numeric" placeholder="919876543210" value="${esc(me.phone||"")}" ${me.role==="seller"?"required":""}><label for="c1">City</label><input id="c1" value="${esc(me.city||"")}"><div class="row"><button class="btn">Save changes</button></div></form><h3 class="ph">Change email</h3><form id="f2"><div class="note">Current email: ${esc(me.email)}</div><label for="e2">New email</label><input id="e2" type="email" required><label for="p2">Current password</label><input id="p2" type="password" required autocomplete="current-password"><div class="err" id="er2"></div><div class="row"><button class="btn">Update email</button></div></form>`;
+  $("f1").onsubmit=e=>{e.preventDefault();save({name:$("n1").value.trim(),phone:$("m1").value.replace(/\D/g,""),city:$("c1").value.trim()});drawUser();toast("Profile updated")};
+  $("f2").onsubmit=async e=>{e.preventDefault();const ne=$("e2").value.trim().toLowerCase(),pw=$("p2").value,old=me.email;$("er2").textContent="";
+   try{
+    if(LIVE){const u=fb.auth.currentUser;await u.reauthenticateWithCredential(firebase.auth.EmailAuthProvider.credential(u.email,pw));await u.updateEmail(ne);const s=await fb.db.collection("ads").where("owner","==",old).get();await Promise.all(s.docs.map(d=>d.ref.update({owner:ne})))}
+    else{const us=jget("sk_users",{});if(us[ne])throw new Error("That email is already registered.");if(!us[old]||us[old].pw!==btoa(pw))throw new Error("Wrong password.");us[ne]=us[old];delete us[old];jset("sk_users",us);mine.forEach(a=>{if(a.owner===old)a.owner=ne});jset("sk_ads",mine)}
+    save({email:ne});drawUser();renderPane();toast("Email updated");
+   }catch(err){$("er2").textContent=err.message.replace("Firebase: ","")}};
+ }else if(curPane==="docs"){
+  const d=me.docs||[];
+  B.innerHTML=X+`<h2>Documents</h2><p class="note">Upload a clear photo of a government ID (up to 3 documents). Never share your OTP or password with anyone.</p><form id="f3"><label for="dt">Document type</label><select class="f" id="dt"><option>Aadhaar card</option><option>PAN card</option><option>Driving licence</option><option>Voter ID</option><option>Passport</option></select><label for="df">Photo of document</label><input id="df" type="file" accept="image/*" required><div class="row"><button class="btn">Upload for verification</button></div></form><h3 class="ph">Your documents</h3>`+(d.map((x,i)=>`<div class="arow"><div style="display:flex;gap:10px;align-items:center"><span class="th" style="background-image:url(${x.img})"></span><div><b>${esc(x.t)}</b><small>Added ${esc(x.date)}</small></div></div><div style="display:flex;gap:6px;align-items:center"><span class="badge ${x.s==="Verified"?"ok":""}">${esc(x.s)}</span><button data-a="deldoc" data-i="${i}">Remove</button></div></div>`).join("")||emp("No documents yet."));
+  $("f3").onsubmit=async e=>{e.preventDefault();if((me.docs||[]).length>=3){toast("You can upload up to 3 documents");return}const img=await shrink($("df").files[0],1000);if(!img){toast("Could not read that photo");return}save({docs:(me.docs||[]).concat({t:$("dt").value,img,s:"Under review",date:new Date().toLocaleDateString("en-IN")})});drawAcct();renderPane();toast("Uploaded. Under review.")};
+ }else if(curPane==="addr"){
+  const a=me.addrs||[];
+  B.innerHTML=X+`<h2>Saved addresses</h2>`+(a.map((x,i)=>`<div class="arow"><div><b>${esc(x.l)}</b> ${x.def?'<span class="badge ok">Default</span>':""}<small>${esc(x.n)} · +${esc(x.ph)}<br>${esc(x.a)}, ${esc(x.c)} ${esc(x.pin)}</small></div><div style="display:flex;flex-direction:column;gap:6px">${x.def?"":`<button class="alt" data-a="defaddr" data-i="${i}">Make default</button>`}<button data-a="deladdr" data-i="${i}">Delete</button></div></div>`).join("")||emp("No addresses saved yet."))+`<h3 class="ph">Add new address</h3><form id="f4"><label for="al">Save as</label><select class="f" id="al"><option>Home</option><option>Work</option><option>Other</option></select><label for="an4">Full name</label><input id="an4" required><label for="ap4">Mobile number</label><input id="ap4" inputmode="numeric" required><label for="aa4">Address (house, street, area)</label><textarea id="aa4" rows="2" required></textarea><label for="ac4">City</label><input id="ac4" required><label for="az4">Pincode</label><input id="az4" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required><div class="row"><button class="btn">Save address</button></div></form>`;
+  $("f4").onsubmit=e=>{e.preventDefault();const x={l:$("al").value,n:$("an4").value.trim(),ph:$("ap4").value.replace(/\D/g,""),a:$("aa4").value.trim(),c:$("ac4").value.trim(),pin:$("az4").value,def:!(me.addrs||[]).length};save({addrs:(me.addrs||[]).concat(x)});drawAcct();renderPane();toast("Address saved")};
+ }else if(curPane==="pay"){
+  const p=me.pays||[];
+  B.innerHTML=X+`<h2>Payment methods</h2><p class="note">For your safety we never store full card or account numbers, CVV, PIN or OTP.</p>`+(p.map((x,i)=>`<div class="arow"><div><b>${esc(x.t)}</b> ${x.def?'<span class="badge ok">Default</span>':""}<small>${esc(x.d)}${x.l4?" · ending "+esc(x.l4):""}</small></div><div style="display:flex;flex-direction:column;gap:6px">${x.def?"":`<button class="alt" data-a="defpay" data-i="${i}">Make default</button>`}<button data-a="delpay" data-i="${i}">Delete</button></div></div>`).join("")||emp("No payment methods saved yet."))+`<h3 class="ph">Add payment method</h3><form id="f5"><label for="pt5">Type</label><select class="f" id="pt5"><option>UPI</option><option>Card</option><option>Bank account</option></select><label for="pd5" id="pl5">UPI ID</label><input id="pd5" required placeholder="name@bank"><div id="l4w" hidden><label for="p45">Last 4 digits</label><input id="p45" inputmode="numeric" pattern="[0-9]{4}" maxlength="4"></div><div class="err" id="er5"></div><div class="row"><button class="btn">Save</button></div></form>`;
+  $("pt5").onchange=()=>{const u=$("pt5").value==="UPI";$("l4w").hidden=u;$("p45").required=!u;$("pl5").textContent=u?"UPI ID":$("pt5").value==="Card"?"Name on card":"Bank name";$("pd5").placeholder=u?"name@bank":"e.g. HDFC Bank"};
+  $("f5").onsubmit=e=>{e.preventDefault();const t=$("pt5").value,d=$("pd5").value.trim();if(t==="UPI"&&!/^[\w.\-]{2,}@[a-z]{2,}$/i.test(d)){$("er5").textContent="Enter a valid UPI ID like name@bank";return}save({pays:(me.pays||[]).concat({t,d,l4:t==="UPI"?"":$("p45").value,def:!(me.pays||[]).length})});drawAcct();renderPane();toast("Payment method saved")};
+ }
+}
+$("pbody").onclick=e=>{const b=e.target.closest("button[data-a]");if(!b)return;const i=+b.dataset.i,a=b.dataset.a,arr=k=>(me[k]||[]).slice();
+ if(a==="deldoc"){const d=arr("docs");d.splice(i,1);save({docs:d})}
+ else if(a==="deladdr"||a==="delpay"){const k=a==="deladdr"?"addrs":"pays",d=arr(k),was=d[i].def;d.splice(i,1);if(was&&d[0])d[0]=Object.assign({},d[0],{def:true});save({[k]:d})}
+ else if(a==="defaddr"||a==="defpay"){const k=a==="defaddr"?"addrs":"pays";save({[k]:arr(k).map((x,j)=>Object.assign({},x,{def:j===i}))})}
+ drawAcct();renderPane()};
+
 function start(){
  drawCats();draw();
  if(!LIVE){me=jget("sk_me",null);drawUser();return}
