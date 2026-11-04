@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BazaarNow – Buy and sell near you</title>
+<style>
+:root{--ink:#002f34;--bg:#f2f4f5;--card:#fff;--line:#d8dfe0;--accent:#ffce32;--link:#23e5db;--muted:#5c7276}
+@media (prefers-color-scheme:dark){:root{--ink:#e8f1f2;--bg:#0f1c1e;--card:#162a2d;--line:#2a4448;--muted:#9bb2b6}}
+*{box-sizing:border-box}
+body{margin:0;font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink)}
+header{background:#002f34;color:#fff;padding:12px 16px;position:sticky;top:0;z-index:5}
+.bar{max-width:1000px;margin:auto;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.logo{font-weight:800;font-size:22px;letter-spacing:-.5px}
+.logo span{color:var(--accent)}
+.search{flex:1;min-width:180px;display:flex}
+.search input{flex:1;padding:11px 12px;border:2px solid #fff;border-radius:6px 0 0 6px;font-size:16px;background:#fff;color:#002f34}
+.search button{border:0;background:var(--link);color:#002f34;font-weight:700;padding:0 16px;border-radius:0 6px 6px 0;font-size:16px}
+.sell{background:#fff;color:#002f34;border:3px solid var(--accent);border-radius:30px;font-weight:800;padding:8px 18px;font-size:16px;cursor:pointer}
+main{max-width:1000px;margin:auto;padding:16px}
+.cats{display:flex;gap:8px;overflow-x:auto;padding-bottom:8px}
+.cats button{white-space:nowrap;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:8px 14px;border-radius:20px;font-size:15px;cursor:pointer}
+.cats button.on{background:#002f34;color:#fff;border-color:#002f34}
+@media (prefers-color-scheme:dark){.cats button.on{background:var(--link);color:#002f34}}
+h2{margin:18px 0 10px;font-size:20px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+.item{background:var(--card);border:1px solid var(--line);border-radius:6px;overflow:hidden;cursor:pointer;display:flex;flex-direction:column}
+.item:hover{border-color:var(--ink)}
+.pic{height:130px;display:grid;place-items:center;font-size:54px;background-size:cover;background-position:center}
+.info{padding:10px 12px}
+.price{font-weight:800;font-size:18px}
+.title{margin:2px 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.meta{font-size:13px;color:var(--muted);display:flex;justify-content:space-between}
+.empty{padding:40px 10px;text-align:center;color:var(--muted)}
+dialog{border:0;border-radius:10px;padding:0;width:min(520px,94vw);background:var(--card);color:var(--ink);max-height:92vh}
+dialog::backdrop{background:rgba(0,0,0,.55)}
+.in{padding:18px}
+.in .pic{height:200px;border-radius:6px;margin-bottom:12px}
+label{display:block;font-weight:600;margin:12px 0 4px}
+input,select,textarea{width:100%;padding:10px;border:1px solid var(--line);border-radius:6px;font:inherit;background:var(--bg);color:var(--ink)}
+.row{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+.btn{flex:1;text-align:center;text-decoration:none;border:0;border-radius:6px;padding:12px;font-weight:700;font-size:16px;cursor:pointer;background:#002f34;color:#fff}
+.btn.alt{background:#25d366;color:#003d1a}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.x{float:right;background:none;border:0;font-size:26px;cursor:pointer;color:var(--ink)}
+footer{text-align:center;color:var(--muted);font-size:14px;padding:24px}
+:focus-visible{outline:3px solid var(--link);outline-offset:2px}
+</style>
+</head>
+<body>
+<header>
+ <div class="bar">
+  <div class="logo">Bazaar<span>Now</span></div>
+  <form class="search" id="sf"><input id="q" type="search" placeholder="Search phones, bikes, furniture…" aria-label="Search"><button>Search</button></form>
+  <button class="sell" id="sellBtn">+ Sell</button>
+ </div>
+</header>
+<main>
+ <div class="cats" id="cats"></div>
+ <h2 id="head">Fresh recommendations</h2>
+ <div class="grid" id="grid"></div>
+ <div class="empty" id="empty" hidden>No ads found. Try another search or category.</div>
+</main>
+<footer>© BazaarNow. Meet in a public place and never pay before you see the item.</footer>
+
+<dialog id="view"><div class="in" id="vbody"></div></dialog>
+
+<dialog id="post"><div class="in">
+ <button class="x" onclick="post.close()" aria-label="Close">×</button>
+ <h2 style="margin-top:0">Post your ad</h2>
+ <form id="pf">
+  <label for="pt">Title</label><input id="pt" required maxlength="60" placeholder="e.g. iPhone 12, 128 GB">
+  <label for="pc">Category</label><select id="pc"></select>
+  <label for="pp">Price (₹)</label><input id="pp" type="number" min="0" required>
+  <label for="pl">City</label><input id="pl" required placeholder="e.g. Mumbai">
+  <label for="pd">Description</label><textarea id="pd" rows="3" placeholder="Condition, age, reason for selling"></textarea>
+  <label for="pw">Your WhatsApp number (with country code)</label><input id="pw" required inputmode="numeric" placeholder="919876543210">
+  <label for="pi">Photo (optional)</label><input id="pi" type="file" accept="image/*">
+  <div class="row"><button class="btn" type="submit">Post ad</button></div>
+ </form>
+</div></dialog>
+
+<script>
+const CATS=[["All","🛍️"],["Mobiles","📱"],["Vehicles","🏍️"],["Electronics","💻"],["Furniture","🛋️"],["Fashion","👕"],["Books","📚"]];
+const SEED=[
+ {t:"iPhone 12, 128 GB, good condition",c:"Mobiles",p:34000,l:"Mumbai",d:"Used for 2 years. Battery health 86%. Box and charger included.",w:"919999999999"},
+ {t:"Royal Enfield Classic 350, 2019",c:"Vehicles",p:145000,l:"Pune",d:"First owner, 24,000 km, all papers clear.",w:"919999999999"},
+ {t:"Dell Inspiron laptop, i5, 8 GB RAM",c:"Electronics",p:22500,l:"Delhi",d:"256 GB SSD, works perfectly, 1 year old.",w:"919999999999"},
+ {t:"Wooden study table with drawer",c:"Furniture",p:3200,l:"Lucknow",d:"Sturdy sheesham wood, small scratch on one side.",w:"919999999999"},
+ {t:"Samsung Galaxy M31, 6 GB",c:"Mobiles",p:9800,l:"Varanasi",d:"Works well, screen guard fitted.",w:"919999999999"},
+ {t:"Men’s leather jacket, size L",c:"Fashion",p:2400,l:"Jaipur",d:"Worn twice. Genuine leather.",w:"919999999999"},
+ {t:"Engineering books set, 1st year",c:"Books",p:900,l:"Kanpur",d:"Maths, Physics, Chemistry, Mechanics. Good condition.",w:"919999999999"},
+ {t:"Sony 43 inch smart TV",c:"Electronics",p:18500,l:"Hyderabad",d:"Full HD, remote included, 2 years old.",w:"919999999999"}
+];
+const $=id=>document.getElementById(id);
+let ads=[],cat="All",term="";
+try{ads=JSON.parse(localStorage.getItem("bn_ads")||"[]")}catch(e){}
+ads=ads.concat(SEED);
+const icon=c=>(CATS.find(x=>x[0]===c)||[0,"🛍️"])[1];
+const inr=n=>"₹ "+Number(n).toLocaleString("en-IN");
+const esc=s=>String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+const tint=c=>"hsl("+((CATS.findIndex(x=>x[0]===c)*55)%360)+",45%,85%)";
+
+function drawCats(){
+ $("cats").innerHTML=CATS.map(x=>`<button class="${x[0]===cat?"on":""}" data-c="${x[0]}">${x[1]} ${x[0]}</button>`).join("");
+ $("pc").innerHTML=CATS.slice(1).map(x=>`<option>${x[0]}</option>`).join("");
+}
+function pic(a){return a.img?`style="background-image:url(${a.img})"`:`style="background:${tint(a.c)}"`}
+function draw(){
+ const list=ads.filter(a=>(cat==="All"||a.c===cat)&&(a.t+" "+a.d+" "+a.l).toLowerCase().includes(term));
+ $("head").textContent=term?`Results for “${term}”`:(cat==="All"?"Fresh recommendations":cat);
+ $("empty").hidden=list.length>0;
+ $("grid").innerHTML=list.map(a=>`<div class="item" tabindex="0" data-i="${ads.indexOf(a)}"><div class="pic" ${pic(a)}>${a.img?"":icon(a.c)}</div><div class="info"><div class="price">${inr(a.p)}</div><div class="title">${esc(a.t)}</div><div class="meta"><span>${esc(a.l)}</span><span>${a.n?"New":""}</span></div></div></div>`).join("");
+}
+function open_(i){
+ const a=ads[i];
+ const msg=encodeURIComponent("Hi, I’m interested in your ad: "+a.t);
+ $("vbody").innerHTML=`<button class="x" onclick="view.close()" aria-label="Close">×</button><div class="pic" ${pic(a)}>${a.img?"":icon(a.c)}</div><div class="price" style="font-size:26px">${inr(a.p)}</div><h2 style="margin:4px 0">${esc(a.t)}</h2><div class="meta" style="justify-content:flex-start;gap:12px"><span>📍 ${esc(a.l)}</span><span>${esc(a.c)}</span></div><p>${esc(a.d||"No description.")}</p><div class="row"><a class="btn alt" target="_blank" rel="noopener" href="https://wa.me/${esc(a.w)}?text=${msg}">Chat on WhatsApp</a><a class="btn" href="tel:+${esc(a.w)}">Call seller</a></div>`;
+ $("view").showModal();
+}
+$("cats").onclick=e=>{const b=e.target.closest("button");if(!b)return;cat=b.dataset.c;drawCats();draw()};
+$("grid").onclick=e=>{const c=e.target.closest(".item");if(c)open_(+c.dataset.i)};
+$("grid").onkeydown=e=>{if(e.key==="Enter"){const c=e.target.closest(".item");if(c)open_(+c.dataset.i)}};
+$("sf").onsubmit=e=>{e.preventDefault();term=$("q").value.trim().toLowerCase();draw()};
+$("sellBtn").onclick=()=>$("post").showModal();
+$("pf").onsubmit=e=>{
+ e.preventDefault();
+ const make=img=>{
+  ads.unshift({t:$("pt").value.trim(),c:$("pc").value,p:$("pp").value,l:$("pl").value.trim(),d:$("pd").value.trim(),w:$("pw").value.replace(/\D/g,""),img:img,n:1});
+  try{localStorage.setItem("bn_ads",JSON.stringify(ads.filter(a=>a.n)))}catch(x){}
+  $("pf").reset();$("post").close();cat="All";term="";$("q").value="";drawCats();draw();scrollTo(0,0);
+ };
+ const f=$("pi").files[0];
+ if(f&&f.size<1500000){const r=new FileReader();r.onload=()=>make(r.result);r.readAsDataURL(f)}else make("");
+};
+drawCats();draw();
+</script>
+</body>
+</html>
